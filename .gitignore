@@ -1,0 +1,11 @@
+*
+
+!src/
+!src/detector/
+!src/classifier/
+!sign/
+!sign/diamond/
+!sign/others/
+!*.py
+!*.png
+!.gitignore
