@@ -36,9 +36,9 @@ def get_not_convex_point(polygon):
         # Accumulate the direction-change angle
         angle_sum += angle
     if len(pos_angle_list) < len(neg_angle_list):
-        return pos_angle_list
+        return pos_angle_list, neg_angle_list
     else:
-        return neg_angle_list
+        return neg_angle_list, pos_angle_list
 
 
 def split_signs(contour, non_convex_points):
@@ -56,8 +56,11 @@ def split_signs(contour, non_convex_points):
 
 def try_to_split_signs(contour):
     shaped_contour = contour.reshape((-1, 2))
-    non_convex_points = get_not_convex_point(shaped_contour.copy())
-    return split_signs(shaped_contour.copy(), non_convex_points)
+    non_convex_points, convex_point = get_not_convex_point(shaped_contour)
+    if len(non_convex_points) == 1:
+        return [shaped_contour[convex_point]]
+    else:
+        return split_signs(shaped_contour, non_convex_points)
 
 
 

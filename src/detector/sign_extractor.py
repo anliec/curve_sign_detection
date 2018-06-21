@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-BOX_SIZE = 180
+BOX_SIZE = 100
 pts_dst_anti_horaire = np.float32([[0, BOX_SIZE], [BOX_SIZE, BOX_SIZE], [BOX_SIZE, 0], [0, 0]])
 pts_dst_horaire = np.float32([[0, BOX_SIZE], [0, 0], [BOX_SIZE, 0], [BOX_SIZE, BOX_SIZE]])
 

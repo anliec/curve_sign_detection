@@ -25,7 +25,7 @@ def can_contour_be_sign(c):
     # print("Area:", area)
     squareness = perimeter**2 / (16 * area)  # for a square, perimeter**2 / (16 * area) should be equal to 1.0
     # print("Ratio:", squareness)
-    if squareness > 2.5:
+    if squareness > 3.0:
         return False
     height = np.min(c.reshape((-1, 2)), axis=0)[1]
     h_ratio = height**2 / area  # small sign are usually on top of the image and big one in the middle
@@ -40,7 +40,7 @@ def approximate_contours(contour_list, block_recursion: bool=False):
     for c in contour_list:
         if len(c) == 0:
             continue
-        approx_c = cv2.approxPolyDP(c, 0.025 * cv2.arcLength(c, True), True)
+        approx_c = cv2.approxPolyDP(c, 0.012 * cv2.arcLength(c, True), True)
         # print(len(approx_c))
         if len(approx_c) == 4:
             cc = cv2.convexHull(c)
@@ -53,11 +53,11 @@ def approximate_contours(contour_list, block_recursion: bool=False):
                 m = cv2.moments(c)
                 center = int(m['m10']/m['m00']), int(m['m01']/m['m00'])
                 # print(center)
-                rect = (center, (rect[1][0] * 0.85, rect[1][1] * 0.85), rect[2])
+                rect = (center, (rect[1][0] * 0.9, rect[1][1] * 0.9), rect[2])
                 box = cv2.boxPoints(rect)
                 box = np.int0(box).reshape((4, 1, 2))
                 approx_contours.append(box)
-        elif 10 > len(approx_c) > 6 and not block_recursion:
+        elif 12 > len(approx_c) > 6 and not block_recursion:
             # probably two sign merged in one...
             splitted_contours = try_to_split_signs(approx_c)
             approx_contours += approximate_contours(splitted_contours, block_recursion=True)
