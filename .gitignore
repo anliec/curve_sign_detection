@@ -7,5 +7,6 @@
 !sign/diamond/
 !sign/others/
 !*.py
+!*.ipynb
 !*.png
 !.gitignore
