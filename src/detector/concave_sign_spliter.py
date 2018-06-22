@@ -42,7 +42,18 @@ def get_not_convex_point(polygon):
 
 
 def split_signs(contour, non_convex_points):
-    if len(non_convex_points) != 2:
+    if 2 < len(non_convex_points) <= 4:
+        min_dist = 8000
+        closest_points = None
+        for i, p1 in enumerate(non_convex_points):
+            for p2 in non_convex_points[i + 1:]:
+                dist = np.linalg.norm(contour[p1] - contour[p2], 2)
+                if min_dist > dist and len(contour) - 3 > abs(p1 - p2) > 3:
+                    min_dist = dist
+                    closest_points = [p1, p2]
+                    print(p1, p2)
+        non_convex_points = closest_points
+    elif len(non_convex_points) != 2:
         print("Contour with not exactly 2 non convex point ({} points) are not handled yet...".format(
             len(non_convex_points)))
         return []

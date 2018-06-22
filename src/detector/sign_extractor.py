@@ -14,7 +14,8 @@ def extract_sign_image(contours, image: np.ndarray):
             # ensure rotation is the same for every sign
             right_angle, bottom_angle = np.argmax(pts_src, axis=0)
             diff_to_bottom = pts_src - pts_src[bottom_angle]
-            mask_bt_corner = diff_to_bottom[:, 1] < -10
+            bottom_threshold = (pts_src[bottom_angle][1] - np.min(pts_src[:, 1])) * 0.2
+            mask_bt_corner = diff_to_bottom[:, 1] < -bottom_threshold
             if mask_bt_corner.sum() < 3:  # if two corner are near the bottom we only take the left most one
                 masked_corner = pts_src.copy()
                 masked_corner[mask_bt_corner, :] = 8000  # mask out the others corner

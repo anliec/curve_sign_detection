@@ -2,11 +2,13 @@ import cv2
 import numpy as np
 
 # globally define kernels (do not recreate them for each image)
-small_closing_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-noise_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+small_closing_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+noise_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 # closing_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (17, 17))
 # erode_kernel = np.ones((3, 3), dtype=np.uint8)
 # dilating_kernel = np.ones((15,15), dtype=np.uint8)
+
+# CLAHE = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
 
 
 def generate_mask_from_color_model(hsv_image: np.ndarray):
@@ -18,13 +20,17 @@ def generate_mask_from_color_model(hsv_image: np.ndarray):
 def generate_raw_mask(hsv_image: np.ndarray):
     hue = cv2.GaussianBlur(hsv_image[:, :, 0], (3, 3), 0)
     # hue = hsv_image[:, :, 0]
-    hue_mask = (hue < 35) * (hue > 10)
+    hue_mask = (hue < 35) & (hue > 10)
     yellow_saturation = hsv_image[:, :, 1] * hue_mask
-    smax = yellow_saturation.max()
-    smin = yellow_saturation.min()  # == 0 ...
-    yellow_saturation = (yellow_saturation - smin) * (255 / (smax - smin))
+    # non_masked_val = yellow_saturation[hue_mask]
+    # smax = non_masked_val.max()
+    # smin = non_masked_val.min()
     yellow_saturation = cv2.GaussianBlur(yellow_saturation, (3, 3), 0)
-    augmented_saturation_mask = (yellow_saturation > 105).astype(np.uint8)
+    # yellow_saturation = CLAHE.apply(yellow_saturation)
+    smin, smax = np.percentile(yellow_saturation, [90, 95])
+    threshold = int(0.65 * (smax - smin)) + smin
+    print(smin, smax, threshold)
+    augmented_saturation_mask = (yellow_saturation > threshold).astype(np.uint8)
     return augmented_saturation_mask
 
 
