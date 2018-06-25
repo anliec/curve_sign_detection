@@ -11,8 +11,8 @@ from src.utils.sign_creator import speed_sign_creator
 
 def main():
     pr = cProfile.Profile()
-    # file = "data/{:03d}.jpg".format(random.randint(1, 404))
-    file = "data/{:03d}.jpg".format(135)
+    file = "data/{:03d}.jpg".format(random.randint(1, 404))
+    # file = "data/{:03d}.jpg".format(322)
     print(file)
     im = cv2.imread(file)
     im = im[30:, :, :]

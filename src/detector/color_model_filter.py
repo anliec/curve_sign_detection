@@ -19,19 +19,35 @@ def generate_mask_from_color_model(hsv_image: np.ndarray):
 
 def generate_raw_mask(hsv_image: np.ndarray):
     hue = cv2.GaussianBlur(hsv_image[:, :, 0], (3, 3), 0)
-    # hue = hsv_image[:, :, 0]
-    hue_mask = (hue < 35) & (hue > 10)
+    hue_mask = (hue < 40) & (hue > 10)
     yellow_saturation = hsv_image[:, :, 1] * hue_mask
-    # non_masked_val = yellow_saturation[hue_mask]
-    # smax = non_masked_val.max()
-    # smin = non_masked_val.min()
     yellow_saturation = cv2.GaussianBlur(yellow_saturation, (3, 3), 0)
-    # yellow_saturation = CLAHE.apply(yellow_saturation)
-    smin, smax = np.percentile(yellow_saturation, [90, 95])
-    threshold = int(0.65 * (smax - smin)) + smin
-    print(smin, smax, threshold)
-    augmented_saturation_mask = (yellow_saturation > threshold).astype(np.uint8)
-    return augmented_saturation_mask
+    # define saturation threshold using value histogram
+    smin, smax = np.percentile(yellow_saturation, [98, 99.9])
+    hist, col = np.histogram(yellow_saturation, 25)
+    # compute variation
+    diff = hist[1:] - hist[:-1]
+    last_d = 0
+    last_convex_index = None
+    for i, d in enumerate(diff):
+        if col[i] > smax:
+            break
+        # if variation goes from decreasing to increasing keep index
+        if d >= 0 and last_d < 0 and hist[i] < 6000:
+            last_convex_index = i
+        last_d = d
+
+    # if no curve inversion found fall back to the old fashioned percentile method
+    if last_convex_index is None:
+        threshold = int(0.65 * (smax - smin) + smin)
+    else:
+        if col[last_convex_index] > smin:
+            last_convex_index -= 2
+        else:
+            last_convex_index -= 1
+        threshold = col[last_convex_index]
+
+    return (yellow_saturation > threshold).astype(np.uint8)
 
 
 def filter_mask_noise(mask: np.ndarray):

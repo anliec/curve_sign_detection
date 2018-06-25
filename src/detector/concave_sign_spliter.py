@@ -52,6 +52,9 @@ def split_signs(contour, non_convex_points):
                     min_dist = dist
                     closest_points = [p1, p2]
                     print(p1, p2)
+        # if the convex points are to close to each other, it's probably false positive
+        if closest_points is None:
+            return []
         non_convex_points = closest_points
     elif len(non_convex_points) != 2:
         print("Contour with not exactly 2 non convex point ({} points) are not handled yet...".format(
