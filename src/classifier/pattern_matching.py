@@ -17,7 +17,8 @@ def match_sign_with_pattern(sign_image_list, ref_sign_path: str="sign"):
 
 
 def match_sign(arg):
-    hsv_sign, ref_sign_path = arg
+    sign_dict, ref_sign_path = arg
+    hsv_sign = sign_dict['sign']
     threshold_factor = 0.8
     v_max, v_min = np.percentile(hsv_sign[:, :, 2], [20, 60])
     threshold = v_max * threshold_factor + v_min * (1.0 - threshold_factor)
@@ -56,26 +57,28 @@ def match_sign(arg):
         regex_match = SPEED_REGEX.search(text)
         if regex_match:
             matches.insert(0, {'score': 1.0, 'speed_limit': int(regex_match.group()), 'flipped': False})
-    return {"sign": hsv_sign, "matches": matches}
+    return {"sign": hsv_sign, "matches": matches, "bounding_box": sign_dict['contour']}
 
 
 def template_iterator(path: str):
     files_list = glob.glob(os.path.join(path, "*sng*.png"))
-    size_factors = [0.85, 0.95]
-    for t in files_list:
-        template = cv2.imread(t, cv2.IMREAD_UNCHANGED)
+    size_factors = [0.8, 0.95]  # [0.85, 0.95]
+    for name in files_list:
+        template = cv2.imread(name, cv2.IMREAD_UNCHANGED)
         template = template[:, :, 3] == 255
         size_ratio = MATCHING_SIGN_SIZE / max(template.shape)
         for s in size_factors:
             resize_ratio = s * size_ratio
             tem = cv2.resize(template.astype(np.uint8), (0, 0), fx=resize_ratio, fy=resize_ratio)
-            yield t.split('_')[0], tem
+            yield name[:-11], tem
 
 
 def diamond_template_generator(sign_dir: str):
     for name, t in template_iterator(os.path.join(sign_dir, "diamond")):
         yield name, t, False
         yield name, np.flip(np.rot90(t), axis=1), True
+    for name, t in template_iterator(os.path.join(sign_dir, "diamond", "no_mirror")):
+        yield name, t, False
 
 
 def other_template_generator(sign_dir: str):
@@ -85,6 +88,11 @@ def other_template_generator(sign_dir: str):
         t = cv2.resize(t, (s, s))
         yield name, t, False
         yield name, np.flip(t, axis=1), True
+    for name, t in template_iterator(os.path.join(sign_dir, "others", "no_mirror")):
+        # resize to a square as the sign are transformed that way
+        s = max(t.shape)
+        t = cv2.resize(t, (s, s))
+        yield name, t, False
 
 
 def template_generator(sign_path):

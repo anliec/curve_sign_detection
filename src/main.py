@@ -12,7 +12,7 @@ from src.utils.sign_creator import speed_sign_creator
 def main():
     pr = cProfile.Profile()
     file = "data/{:03d}.jpg".format(random.randint(1, 404))
-    # file = "data/{:03d}.jpg".format(322)
+    # file = "data/{:03d}.jpg".format(264)
     print(file)
     im = cv2.imread(file)
     im = im[30:, :, :]
@@ -25,7 +25,12 @@ def main():
     matches_list = match_sign_with_pattern(sign_images, 'sign')
     pr.disable()
     plt.figure(0)
-    plt.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB))
+    im_bounding_boxes = cv2.drawContours(im.copy(),
+                                         list(map(lambda x: x['bounding_box'], matches_list)),
+                                         -1,
+                                         (0, 255, 0),
+                                         3)
+    plt.imshow(cv2.cvtColor(im_bounding_boxes, cv2.COLOR_BGR2RGB))
     plt.figure(1)
     for s, matches_dict in enumerate(matches_list):
         plt.subplot(len(matches_list), 4, 1 + 4 * s)

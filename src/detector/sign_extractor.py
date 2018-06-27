@@ -30,6 +30,6 @@ def extract_sign_image(contours, image: np.ndarray):
             # extract the sign
             transform_matrix = cv2.getPerspectiveTransform(pts_src, pts_dst)
             sign = cv2.warpPerspective(image, transform_matrix, (BOX_SIZE, BOX_SIZE))
-            sign_images.append(sign)
+            sign_images.append({'sign': sign, 'contour': c})
     return sign_images
 
