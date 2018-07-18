@@ -8,5 +8,5 @@
 !sign/others/
 !*.py
 !*.ipynb
-!*.png
+!sign/*.png
 !.gitignore
