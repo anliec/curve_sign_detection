@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-import cProfile, pstats, io
+import cProfile
+import pstats
+import io
 
 from src.detector.detection_pipeline import detect_and_extract_signs
 from src.classifier.pattern_matching import match_sign_with_pattern

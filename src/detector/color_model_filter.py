@@ -56,7 +56,7 @@ def generate_raw_mask(hsv_image: np.ndarray, percentile_fallback: bool=True):
         else:
             last_convex_index -= 1
         threshold = col[last_convex_index]
-    print("elected threshold:", threshold)
+    # print("elected threshold:", threshold)
     return (yellow_saturation > threshold).astype(np.uint8)
 
 
@@ -68,8 +68,8 @@ def filter_mask_noise(mask: np.ndarray):
     _, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     mask = cv2.drawContours(mask, contours, -1, 1, -1)
     # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, small_closing_kernel)  # close sign
-    mask = cv2.erode(mask, small_closing_kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, noise_kernel)  # remove noise
+    # mask = cv2.erode(mask, small_closing_kernel)
+    # mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, noise_kernel)  # remove noise
     # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, closing_kernel)  # close sign
     return mask
 
